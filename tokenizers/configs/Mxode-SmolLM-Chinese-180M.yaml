@@ -1,0 +1,4 @@
+tokenizer_path: ../customized/Mxode-SmolLM-Chinese-180M.json
+eos_token: <|im_end|>
+pad_token: <unk>
+cls_token: <|unused159|>  # this is appended to the end of the input text; the classifier head will use this to predict a label

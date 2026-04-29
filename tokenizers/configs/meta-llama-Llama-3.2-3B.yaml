@@ -1,0 +1,4 @@
+tokenizer_path: ../customized/meta-llama-Llama-3.2-3B.json
+eos_token: <|end_of_text|>
+pad_token: <|end_of_text|>
+cls_token: <|eot_id|>

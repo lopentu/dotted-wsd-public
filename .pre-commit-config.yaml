@@ -1,0 +1,10 @@
+# Run with `uvx pre-commit run --all-files` or install hooks with
+# `uvx pre-commit install` (gets re-run on every `git commit`). Pinned to a
+# specific ruff release so contributors all see the same diagnostics.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

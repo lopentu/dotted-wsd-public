@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying manuscript (currently under peer review)."
+type: software
+title: "dotted-wsd: Code for Balancing Accuracy and Efficiency"
+authors:
+  - family-names: "Chen"
+    given-names: "Pin-Er"
+    email: "cckk2913@gmail.com"
+    affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+  - family-names: "Lian"
+    given-names: "Da-Chen"
+    email: "d08944019@ntu.edu.tw"
+    affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+  - family-names: "Hsieh"
+    given-names: "Shu-Kai"
+    email: "shukaihsieh@ntu.edu.tw"
+    affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+license: MIT
+repository-code: "https://github.com/lopentu/dotted-wsd-public"
+preferred-citation:
+  type: unpublished
+  title: "Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection"
+  authors:
+    - family-names: "Chen"
+      given-names: "Pin-Er"
+      email: "cckk2913@gmail.com"
+      affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+    - family-names: "Lian"
+      given-names: "Da-Chen"
+      email: "d08944019@ntu.edu.tw"
+      affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+    - family-names: "Hsieh"
+      given-names: "Shu-Kai"
+      email: "shukaihsieh@ntu.edu.tw"
+      affiliation: "Graduate Institute of Linguistics, National Taiwan University"
+  notes: "Manuscript submitted to Natural Language Processing (Cambridge University Press); under review."

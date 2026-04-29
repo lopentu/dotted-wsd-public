@@ -1,0 +1,136 @@
+[project]
+name = "dotted-wsd"
+version = "0.1.0"
+description = "Code accompanying the manuscript 'Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection' (Chen, Lian, Hsieh; under review)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Pin-Er Chen" },
+    { name = "Da-Chen Lian" },
+    { name = "Shu-Kai Hsieh" },
+]
+urls = { Repository = "https://github.com/lopentu/dotted-wsd-public" }
+dependencies = [
+    "accelerate>=1.1.1",
+    "bitsandbytes>=0.44.1",
+    "cwngraph>=0.4.0",
+    "datasets>=3.1.0",
+    "evaluate>=0.4.3",
+    "hf-transfer>=0.1.8",
+    "loguru>=0.7.2",
+    "matplotlib>=3.9.2",
+    "numpy>=2.0.0",
+    "pandas>=2.2.3",
+    "peft>=0.13.2",
+    "pydantic>=2.10.2",
+    "pyyaml>=6.0.2",
+    "rich>=13.9.4",
+    "scikit-learn>=1.5.2",
+    "sentencepiece>=0.2.0",
+    "torch>=2.4.1",
+    "tqdm>=4.66.0",
+    "transformers>=4.46.3",
+    "typer>=0.14.0",
+    "typing-extensions>=4.12.0",
+    "wandb>=0.18.7",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu121" }]
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dotted_wsd"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # Docstring style — this is a research codebase; we don't enforce
+    # docstrings on every public function or every module top-line.
+    "D",
+    # Type-annotation completeness — annotations exist where they help,
+    # but the codebase predates a strict ANN policy and back-filling
+    # everything is out of scope for the public release.
+    "ANN",
+    # Boolean positional/default args + arity rules — common in research
+    # code (e.g. `is_debug=False`); refactoring these would be API churn
+    # for no semantic gain.
+    "FBT",
+    "PLR0913",
+    "PLR2004",
+    # Exception-style nits.
+    "EM101",
+    "EM102",
+    "TRY003",
+    "RET505",
+    # Trailing-comma rule — ruff format handles this; the rule itself is
+    # deprecated upstream when the formatter is in use.
+    "COM812",
+    # CLI scripts intentionally print to stdout (they're typer entry points,
+    # not libraries). Replacing every print() with a logger is wrong.
+    "T201",
+    # `assert` is fine in research code as a precondition check; we are
+    # not running with -O.
+    "S101",
+    # Pandas-prefer-X / list-copy nits — fine but not load-bearing.
+    "PD011",
+    # Tracked elsewhere: the line-length cap is already 100; the strings
+    # that exceed it are descriptive typer `help=` parameters that read
+    # worse when broken across lines.
+    "E501",
+    # `INP001` (implicit namespace package) — hatch builds via the explicit
+    # `[tool.hatch.build.targets.wheel] packages = ["src/dotted_wsd"]`, so
+    # we don't need __init__.py in tests/ or carbon_emissions/.
+    "INP001",
+    # Commented-out code — several files keep alternative implementations
+    # as reference; we don't want a global ban.
+    "ERA001",
+    # Magic-numbers warnings on subprocess args / standard CLI exit codes.
+    "S603",
+    # `open()` vs `Path.open()` is a stylistic preference.
+    "PTH123",
+    # `RUF001` flags ambiguous Unicode such as Chinese punctuation in our
+    # data examples and special-token strings — those are intentional.
+    "RUF001",
+    # `PGH003` (blanket `# type: ignore`) — used to silence transformers'
+    # dummy-stub-vs-real-class union-typing noise we documented.
+    "PGH003",
+    # `TC006` — runtime/type-checking import partition is a python-typing
+    # nicety that doesn't apply to this codebase yet.
+    "TC006",
+    # `N812` — `import torch.nn.functional as F` is the universal PyTorch
+    # convention; ruff's "lowercase imported as non-lowercase" check is wrong
+    # for this case.
+    "N812",
+    # TODO-formatting nits (TD002 `missing author`, TD003 `missing issue link`,
+    # FIX002 `line contains TODO`). The single existing TODO is pre-existing
+    # research code; we're not gating commits on TODO syntax.
+    "TD002",
+    "TD003",
+    "FIX002",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests deliberately use `subprocess` to invoke CLI entry points and
+# `pytest.mark.parametrize` to keep table-driven cases readable.
+"tests/*" = ["S404", "S607"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"

@@ -1,0 +1,4 @@
+tokenizer_path: ../customized/google-gemma-2-2b.json
+eos_token: <eos>
+pad_token: <pad>
+cls_token: <unused99> # this is appended to the end of the input text; the classifier head will use this to predict a label
