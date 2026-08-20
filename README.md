@@ -1,15 +1,15 @@
 # Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection
 
-This repository contains the code accompanying the manuscript *"Balancing
+This repository contains the code accompanying the article *"Balancing
 Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word
 Sense Disambiguation and Regular Polysemy Detection"* by Pin-Er Chen, Da-Chen
 Lian, and Shu-Kai Hsieh (Graduate Institute of Linguistics, National Taiwan
-University), currently under review at *Natural Language Processing*
-(Cambridge University Press).
+University), published in *Natural Language Processing* 32(4), 451–469
+(Cambridge University Press). The version of record is available at
+[Cambridge Core](https://www.cambridge.org/core/journals/natural-language-processing/article/balancing-accuracy-and-efficiency-evaluating-encoder-and-decoderbased-models-for-word-sense-disambiguation-and-regular-polysemy-detection/5B689E6527B6233937D28BC769446D6D).
 
-> **Status:** the manuscript is under peer review. Citation details below
-> (volume, pages, DOI) will be updated once the article is accepted and
-> assigned its final bibliographic information.
+> **Publication:** Chen, Lian, and Hsieh (2026), *Natural Language Processing*
+> 32(4), 451–469. <https://doi.org/10.1017/nlp.2026.10033>
 
 ## Abstract
 
@@ -36,27 +36,79 @@ sustainable and eco-friendly practices in NLP development.
 
 ## Citation
 
-> The manuscript is under review; once accepted, this section will be updated
-> with the final journal citation (volume, pages, DOI).
+Plain text:
 
-Plain text (provisional):
+> Chen, P.-E., Lian, D.-C., & Hsieh, S.-K. (2026). Balancing accuracy and
+> efficiency: Evaluating encoder- and decoder-based models for word sense
+> disambiguation and regular polysemy detection. *Natural Language Processing,
+> 32*(4), 451–469. <https://doi.org/10.1017/nlp.2026.10033>
 
-> Chen, P.-E., Lian, D.-C., & Hsieh, S.-K. Balancing Accuracy and Efficiency:
-> Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation
-> and Regular Polysemy Detection. *Natural Language Processing*. Cambridge
-> University Press. Manuscript under review.
-
-BibTeX (provisional):
+BibTeX:
 
 ```bibtex
-@unpublished{chen_balancing_underreview,
-  title   = {Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection},
+@article{Chen_Lian_Hsieh_2026,
+  title   = {Balancing accuracy and efficiency: Evaluating encoder- and decoder-based models for word sense disambiguation and regular polysemy detection},
+  volume  = {32},
+  doi     = {10.1017/nlp.2026.10033},
+  number  = {4},
+  journal = {Natural Language Processing},
   author  = {Chen, Pin-Er and Lian, Da-Chen and Hsieh, Shu-Kai},
-  note    = {Manuscript submitted to Natural Language Processing (Cambridge University Press); under review}
+  year    = {2026},
+  pages   = {451--469}
 }
 ```
 
 See `CITATION.cff` for the machine-readable form.
+
+## Relationship to CwnSenseTagger
+
+The tagging layer in this repository was derived from the experimental
+[`dwsd-beta`](https://github.com/lopentu/CwnSenseTagger/tree/db384a3f8bc5da7f227c0f46fb515ddf8056dbcd/dwsd-beta)
+implementation in `lopentu/CwnSenseTagger`. The link is pinned to commit
+`db384a3f8bc5da7f227c0f46fb515ddf8056dbcd`, where the relevant upstream
+implementation was last changed; linking to the mutable `master` branch would
+not identify a reproducible source version.
+
+This repository is not an unmodified copy of, or a runtime dependency on, the
+`CwnSenseTagger` Python package. It preserves the original candidate-generation
+and decoding workflow while generalizing the model, training, and evaluation
+infrastructure used for the experiments in the accompanying article. The
+derived implementation has been substantially modified for this project since
+2024; the material changes are summarized below.
+
+| Area | Preserved from `dwsd-beta` | Changed in this repository |
+|---|---|---|
+| Target and candidate construction | Marks the target as `<word>` and pairs its context with `word, sense definition, first reference example` | Adds typed training, testing, and inference representations; the actual inference text construction is unchanged |
+| CWN candidate selection | Looks up all senses, filters by compatible POS, and excludes senses without examples | Increases the candidate-lookup cache from 1,000 to 10,000 entries |
+| Regular polysemy detection | Falls back to RPD for `Nb`/`Nc` tokens without WSD candidates and uses the same RP glossary ([`glossdict.json`](src/dotted_wsd/tagger/glossdict.json) is byte-identical) | Adds explicit RPD datasets, evaluation paths, and classification reports |
+| Prediction decoding | Applies softmax across the candidates for each example and selects the highest-probability candidate | Adds typed prediction structures and support for Hugging Face model output conventions |
+| Model | Uses a single `bert-base-chinese` model with BERT `pooler_output` and a binary classification head | Uses `AutoModelForSequenceClassification` and each base model's native classification behavior for the reported experiments; also retains an `AutoModel` compatibility fallback for custom state dicts |
+| Checkpoint loading | Downloads one fixed checkpoint from Google Drive | Loads released Hugging Face checkpoints or an explicitly supplied local state dict; no automatic Google Drive download |
+| Chinese Wordnet data | Uses `CwnImage.latest()`, whose result can change as new images become available | Loads the explicit CWN image `v.2022.08.01` for reproducibility |
+| Batching and tokenization | Uses paired context/candidate inputs, maximum length 320, and inference batch size 16 | Makes batching configurable, pads to a multiple of 8 instead of 16, supports decoder padding, and can remove unsupported `token_type_ids` |
+| Experimental scope | Provides the original single-model inference tagger | Adds multi-model fine-tuning, LoRA, held-out WSD/RPD evaluation, ASBC large-scale evaluation, and carbon-emissions analysis |
+
+### Pooling behavior
+
+The models reported in the article were trained and evaluated through
+`AutoModelForSequenceClassification`; their native sequence-classification
+heads produce the logits. They do **not** use the explicit mean pooling in
+`DottedWsd`.
+
+`DottedWsd` is a compatibility path for loading a base `AutoModel` plus a
+separate local state dict when a sequence-classification checkpoint is not
+available. It reduces token-level hidden states to one vector by taking their
+mean. This avoids assuming that every architecture supplies BERT's
+`pooler_output`, but the current fallback does not mask padding positions.
+Anyone extending this path to padded batches should replace the plain mean with
+attention-mask-aware pooling. The supplied training and evaluation scripts do
+not select this fallback.
+
+The direct lexical-resource dependency is
+[`CwnGraph`](https://pypi.org/project/CwnGraph/), declared as `cwngraph>=0.4.0`;
+the committed lockfile resolves it to version `0.4.0`. The relevant local
+implementations are in [`src/dotted_wsd/tagger/`](src/dotted_wsd/tagger/) and
+[`src/dotted_wsd/dwsd_datasets.py`](src/dotted_wsd/dwsd_datasets.py).
 
 ## Repository contents
 
@@ -194,10 +246,8 @@ available — see the [Data](#data) section.
 ## Fine-tuned models on the Hugging Face Hub
 
 13 `lopentu/*-DottedWSD` checkpoints are released under the
-[`lopentu`](https://huggingface.co/lopentu) organization. They are
-**currently private** while the manuscript is under review and will be made
-public once the article is accepted. The paper itself reports on a subset
-of 10 of these.
+[`lopentu`](https://huggingface.co/lopentu) organization and are publicly
+available. The paper itself reports on a subset of 10 of these.
 
 - `lopentu/google-bert-bert-base-chinese-DottedWSD`
 - `lopentu/ckiplab-bert-base-chinese-DottedWSD`
@@ -293,45 +343,17 @@ for a tighter end-to-end recipe.
 
 ## License
 
-This repository's source code is released under the MIT License — see
-[`LICENSE`](LICENSE).
+This repository's source code is released under
+[GPL-3.0-only](https://www.gnu.org/licenses/gpl-3.0.html) — see
+[`LICENSE`](LICENSE). This license preserves compatibility with the
+GPL-3.0-licensed
+[`CwnSenseTagger` source from which the tagging layer was derived](https://github.com/lopentu/CwnSenseTagger/tree/db384a3f8bc5da7f227c0f46fb515ddf8056dbcd/dwsd-beta).
 
-## Acknowledgements / third-party model licenses
+### Model and data licenses
 
-The MIT license in this repository covers the **source code only**. Each
-released `lopentu/*-DottedWSD` checkpoint is a fine-tuned derivative of an
-upstream pretrained model, and is bound by the upstream model's license —
-**which in several cases is more restrictive than MIT**. Verify the
-upstream license on every model card you build on.
-
-The mapping below was read directly from each base model's `card_data.license`
-field on the Hugging Face Hub.
-
-| Base model | Upstream license | DottedWSD checkpoint |
-|---|---|---|
-| `meta-llama/Llama-3.2-3B` | **Llama 3.2 Community License** (custom, non-OSI) | `lopentu/meta-llama-Llama-3.2-3B-DottedWSD` |
-| `google/gemma-2-2b` | **Gemma Terms of Use** (custom, non-OSI) | `lopentu/gemma-2-2b-DottedWSD` |
-| `Mxode/SmolLM-Chinese-180M` | **GPL-3.0** (copyleft) | `lopentu/SmolLM-Chinese-180M-DottedWSD` |
-| `ckiplab/bert-base-chinese` | **GPL-3.0** (copyleft) | `lopentu/ckiplab-bert-base-chinese-DottedWSD` |
-| `yentinglin/bert-base-zhtw` | **CC-BY-NC-SA-4.0** (non-commercial) | `lopentu/yentinglin-bert-base-zhtw-DottedWSD` |
-| `microsoft/deberta-v3-{small,base,large}` | MIT | `lopentu/microsoft-deberta-v3-{small,base,large}-DottedWSD` |
-| `microsoft/mdeberta-v3-base` | MIT | `lopentu/microsoft-mdeberta-v3-base-DottedWSD` |
-| `MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` | MIT | `lopentu/MoritzLaurer-mDeBERTa-v3-base-xnli-multilingual-nli-2mil7-DottedWSD` |
-| `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli` | MIT | `lopentu/MoritzLaurer-mDeBERTa-v3-base-mnli-xnli-DottedWSD` |
-| `IDEA-CCNL/Erlangshen-DeBERTa-v2-97M-Chinese` | Apache-2.0 | `lopentu/IDEA-CCNL-Erlangshen-DeBERTa-v2-97M-Chinese-DottedWSD` |
-| `google-bert/bert-base-chinese` | Apache-2.0 | `lopentu/google-bert-bert-base-chinese-DottedWSD` |
-| `WENGSYX/Deberta-Chinese-Large` | (license field is unset on the upstream model card; treat as unknown until clarified) | (no released checkpoint) |
-
-Practical implications:
-
-- **Don't redistribute the `yentinglin-bert-base-zhtw-DottedWSD` checkpoint
-  for commercial use** — `CC-BY-NC-SA-4.0` forbids it.
-- The `SmolLM-Chinese-180M-DottedWSD` and `ckiplab-bert-base-chinese-DottedWSD`
-  checkpoints inherit GPL-3.0 from the upstream weights; redistributing
-  them or works that link them likely requires GPL-3.0 compliance.
-- The `Llama` and `Gemma` checkpoints are subject to Meta's and Google's
-  custom community/terms-of-use licenses, which include acceptable-use
-  policies.
-- The remaining checkpoints are under permissive (MIT or Apache-2.0)
-  upstream licenses, so MIT redistribution of the fine-tuned weights is
-  generally safe — but always re-check the model card before assuming.
+The released [`lopentu/*-DottedWSD`](https://huggingface.co/lopentu) model
+checkpoints are not covered by this repository's source-code license. Each
+checkpoint remains subject to the applicable license or terms of its upstream
+base model, as identified on the checkpoint and base-model cards. The same
+principle applies to datasets and other third-party artifacts: their original
+terms continue to apply, and this repository does not relicense them.

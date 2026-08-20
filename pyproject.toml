@@ -1,10 +1,10 @@
 [project]
 name = "dotted-wsd"
 version = "0.1.0"
-description = "Code accompanying the manuscript 'Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection' (Chen, Lian, Hsieh; under review)"
+description = "Code accompanying Chen, Lian, and Hsieh (2026), 'Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection'"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "GPL-3.0-only" }
 authors = [
     { name = "Pin-Er Chen" },
     { name = "Da-Chen Lian" },

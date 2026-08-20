@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite the accompanying manuscript (currently under peer review)."
+message: "If you use this software, please cite the accompanying journal article."
 type: software
 title: "dotted-wsd: Code for Balancing Accuracy and Efficiency"
 authors:
@@ -15,11 +15,11 @@ authors:
     given-names: "Shu-Kai"
     email: "shukaihsieh@ntu.edu.tw"
     affiliation: "Graduate Institute of Linguistics, National Taiwan University"
-license: MIT
+license: GPL-3.0-only
 repository-code: "https://github.com/lopentu/dotted-wsd-public"
 preferred-citation:
-  type: unpublished
-  title: "Balancing Accuracy and Efficiency: Evaluating Encoder- and Decoder-Based Models for Word Sense Disambiguation and Regular Polysemy Detection"
+  type: article
+  title: "Balancing accuracy and efficiency: Evaluating encoder- and decoder-based models for word sense disambiguation and regular polysemy detection"
   authors:
     - family-names: "Chen"
       given-names: "Pin-Er"
@@ -33,4 +33,11 @@ preferred-citation:
       given-names: "Shu-Kai"
       email: "shukaihsieh@ntu.edu.tw"
       affiliation: "Graduate Institute of Linguistics, National Taiwan University"
-  notes: "Manuscript submitted to Natural Language Processing (Cambridge University Press); under review."
+  journal: "Natural Language Processing"
+  year: 2026
+  volume: 32
+  issue: 4
+  start: 451
+  end: 469
+  doi: "10.1017/nlp.2026.10033"
+  url: "https://www.cambridge.org/core/journals/natural-language-processing/article/balancing-accuracy-and-efficiency-evaluating-encoder-and-decoderbased-models-for-word-sense-disambiguation-and-regular-polysemy-detection/5B689E6527B6233937D28BC769446D6D"
